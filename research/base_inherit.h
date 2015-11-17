@@ -1,15 +1,21 @@
 #ifndef __BASE_INHERIT_H__
 
-enum {
-	/* v-table indexes */
-	BASE_V_WHO_AM_I,
+struct base;
 
+enum {
+	BASE_BASE_VOFFSET = 0
+};
+
+enum { 
+	/* v-table indexes */
+	V_WHO_AM_I = BASE_BASE_VOFFSET,
+		
 	/* v-table length */
 	BASE_V_LENGTH
-}
+};
 
-#if (BASE_V_LENGTH != 0)
 #define BASE_USE_V_TABLE
-#endif
+
+void base_register_v_table (struct base *obj, void (**v_table)(void));
 
 #endif

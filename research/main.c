@@ -16,7 +16,7 @@ int main (void)
 	printf ("base's bval = %d\n", base_get_bval (base));
 
 	printf ("base says...");
-	base_
+	base_who_am_i ();
 
 	base_delete (base);
 
@@ -31,8 +31,6 @@ int main (void)
 	printf ("derived's bval = %d\n", derived_get_bval (derived));
 	derived_set_val (derived, 10);
 	printf ("derived's bval = %d\n", derived_get_bval (derived));
-
-	base = derived_
 	
 	derived_delete (b);
 

@@ -12,6 +12,6 @@ int base_get_bval (struct base *obj);
 void base_set_bval (struct base *obj, int bval);
 
 /* virtual functions */
-void base_base_who_am_i (struct derived *obj);
+void base_who_am_i (struct base *obj);
 
 #endif

@@ -10,7 +10,7 @@
 struct derived {
 	/* v-table */
 #ifdef DERIVED_USE_V_TABLE
-	void (**derived_v_table)(void);
+	void (**v_table)(void);
 #endif
 	
 	/* inheritances */
@@ -25,13 +25,10 @@ struct derived {
 static int derived_class_variable;
 
 /* v-tables and initializing v-tables */
-#ifdef BASE_USE_V_TABLE
-static void (*derived_base_v_table[BASE_V_LENGTH])(void);
-static void derived_init_base_v_table (struct base *obj);
-#endif
 #ifdef DERIVED_USE_V_TABLE
-static void (*derived_derived_v_table[DERIVED_V_LENGTH])(void);
-static void derived_init_derived_v_table (struct derived *obj);
+static bool derived_v_table_inited = false;
+static void (*derived_v_table[DERIVED_V_LENGTH])(void);
+static void derived_init_v_table (void);
 #endif
 
 /* constructor and destructor */
@@ -48,36 +45,36 @@ struct derived* derived_new (void)
 {
 	struct derived *obj = malloc (sizeof(struct derived));
 	obj->base = base_new ();
-#ifdef BASE_USE_V_TABLE
-	if (derived_base_v_table[0] == NULL)
-		derived_init_base_v_table (obj->base);
-	(void(**)(void) obj->base = derived_base_v_table;
-#endif
 #ifdef DERIVED_USE_V_TABLE
-	if (derived_derived_v_table[0] == NULL)
-		derived_init_derived_v_table (obj);
-	obj->derived_v_table = derived_derived_v_table;
+	if (!derived_v_table_inited)
+		derived_init_v_table ();
+	derived_register_v_table (obj, derived_v_table);
 #endif
-	derived_constructor (b);
-	return b;
+	derived_constructor (obj);
+	return obj;
 }
 
 void derived_delete (struct derived *obj)
 {
 	base_delete (obj->base);
-	derived_destructor (b);
-	free (b);
+	derived_destructor (obj);
+	free (obj);
 }
 
-static void derived_init_base_v_table (struct base *obj)
+#ifdef DERIVED_USE_V_TABLE
+static void derived_init_v_table (void)
 {
-	((void(**)(void)) obj->base)[V_WHO_AM_I] = 
-		(void(*)(void) &derived_real_who_am_i;
-}
+	derived_v_table_inited = true;
 
-static void derived_init_derived_v_table (struct derived *obj)
+	derived_v_table[BASE_V_WHO_AM_I] = 
+		(void(*)(void)) &derived_real_who_am_i;
+}
+#endif
+
+void derived_register_v_table (struct derived *obj, void (**v_table)(void))
 {
-	// nothing
+	obj->v_table = v_table;
+	base_register_v_table (obj->base, v_table + BASE_VSTART + 1);
 }
 
 static void derived_constructor (struct derived *obj)
@@ -134,6 +131,5 @@ static void derived_real_who_am_i (void)
 
 void derived_who_am_i (struct derived *obj)
 {
-	//(void(*)(void) (((void(**)(void)) obj->base)[V_WHO_AM_I]) ();
-	obj->
+	((void(*)(void)) obj->v_table[BASE_V_WHO_AM_I]) ();
 }
